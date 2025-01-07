@@ -21,9 +21,9 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
 import NotificationProfile from "@/components/NotificationProfile";
-import { fetchWithAuth } from "../../../components/utils/fetchwitAuth";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { exchangeRatesApi } from "@/api/exchange-rates";
 
 interface CurrencyEntry {
   id: string;
@@ -42,52 +42,20 @@ export default function Page() {
 
   const fetchRates = async (searchTerm = "") => {
     try {
-      let url = "https://mojoapi.crosslinkglobaltravel.com/api/rates";
+      const response = await exchangeRatesApi.getAllRates(searchTerm);
       
-      // If searchTerm is provided, fetch specific rate
-      if (searchTerm.trim()) {
-        url = `https://mojoapi.crosslinkglobaltravel.com/api/rates/${searchTerm}`;
-      }
-
-      const response = await fetchWithAuth(
-        url,
-        {
-          headers: {
-            "Authorization": `Bearer ${localStorage.getItem("access_token")}`,
-            "Content-Type": "application/json"
-          }
-        }
-      );
-      const data = await response.json();
-      console.log(data);
-      
-      // Check if the response is JSON
-      const contentType = response.headers.get("Content-Type");
-      if (!contentType || !contentType.includes("application/json")) {
-        throw new Error("Response is not in JSON format");
-      }
-
-      // Handle case when no rates are found
-      if (data.status === "failed" && data.message === "No Exchange rate found!") {
-        setRates([]);
-        return;
-      }
-
-      if (data.status === "success") {
-        // If searching by ID, wrap single result in array
-        if (searchTerm.trim() && data.data) {
-          setRates([data.data]);
-        } else {
-          setRates(data.data);
-        }
+      if (response.status === "success") {
+        setRates(Array.isArray(response.data) ? response.data : []);
       } else {
         setError("Failed to load exchange rates.");
         toast.error("Failed to load exchange rates");
+        setRates([]);
       }
     } catch (err) {
       setError("Failed to load exchange rates.");
       toast.error("Failed to load exchange rates");
       console.error(err);
+      setRates([]);
     } finally {
       setLoading(false);
     }
@@ -109,17 +77,8 @@ export default function Page() {
     if (!isConfirmed) return;
 
     try {
-      const response = await fetch(
-        `https://mojoapi.crosslinkglobaltravel.com/api/rates/${id}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Authorization": `Bearer ${localStorage.getItem("access_token")}`,
-            "Content-Type": "application/json"
-          }
-        }
-      );
-      if (response.ok) {
+      const success = await exchangeRatesApi.deleteRate(id);
+      if (success) {
         setRates(rates.filter((rate) => rate.id !== id));
         toast.success("Exchange rate deleted successfully");
       } else {

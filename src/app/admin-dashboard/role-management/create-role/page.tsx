@@ -7,9 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import BackLink from "@/components/BackLink";
-import { fetchWithAuth } from "@/components/utils/fetchwitAuth";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import { fetchNewRolePermissions, createRole } from "@/api/role-management";
 
 interface Permission {
   id: string;
@@ -26,16 +26,8 @@ export default function Page() {
   useEffect(() => {
     const fetchRoleData = async () => {
       try {
-        const response = await fetchWithAuth(
-          `https://mojoapi.crosslinkglobaltravel.com/api/roles/create`
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch permissions");
-        }
-
-        const data = await response.json();
-
+        const data = await fetchNewRolePermissions();
+        
         // Transform permissions data
         const mappedPermissions = data.data.map((perm: any) => ({
           id: perm.id,
@@ -71,34 +63,20 @@ export default function Page() {
       return;
     }
 
+    const enabledPermissions = permissions
+      .filter(p => p.enabled)
+      .map(p => p.id);
+
+    if (enabledPermissions.length === 0) {
+      toast.error("Please select at least one permission");
+      return;
+    }
+
     try {
-      const enabledPermissions = permissions
-        .filter(p => p.enabled)
-        .map(p => p.id);
-
-      if (enabledPermissions.length === 0) {
-        toast.error("Please select at least one permission");
-        return;
-      }
-
-      const response = await fetchWithAuth(
-        "https://mojoapi.crosslinkglobaltravel.com/api/roles",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: roleName,
-            permission: enabledPermissions,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create role");
-      }
+      await createRole({
+        name: roleName,
+        permission: enabledPermissions,
+      });
 
       toast.success("Role created successfully");
       router.push("/admin-dashboard/role-management");

@@ -27,6 +27,8 @@ import {
 import Link from "next/link";
 import { fetchWithAuth } from "@/components/utils/fetchwitAuth";
 import { toast } from "react-toastify";
+import { fetchRoles, deleteRole } from "@/api/role-management";
+import Swal from "sweetalert2";
 
 interface Role {
   id: string;
@@ -42,42 +44,49 @@ const Page = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchRoles = async () => {
+    const loadRoles = async () => {
       try {
-        const response = await fetchWithAuth("https://mojoapi.crosslinkglobaltravel.com/api/roles");
-        if (!response.ok) throw new Error("Failed to fetch roles");
-        const data = await response.json();
-        setRoles(data.data || []); // Provide default empty array if data.roles is undefined
+        const data = await fetchRoles();
+        setRoles(data.data || []);
       } catch (err) {
-        const error = err as Error; // Type assertion
+        const error = err as Error;
         setError(error.message);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRoles();
+    loadRoles();
   }, []);
 
   const handleDelete = async (roleId: string) => {
-    try {
-      const response = await fetchWithAuth(
-        `https://mojoapi.crosslinkglobaltravel.com/api/roles/${roleId}`,
-        {
-          method: "DELETE",
-        }
-      );
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    });
 
-      if (!response.ok) {
-        throw new Error("Failed to delete role");
+    if (result.isConfirmed) {
+      try {
+        await deleteRole(roleId);
+        setRoles(roles.filter(role => role.id !== roleId));
+        Swal.fire(
+          'Deleted!',
+          'Role has been deleted.',
+          'success'
+        );
+      } catch (error) {
+        console.error("Error deleting role:", error);
+        Swal.fire(
+          'Error!',
+          'Failed to delete role.',
+          'error'
+        );
       }
-
-      // Remove the deleted role from the state
-      setRoles(roles.filter(role => role.id !== roleId));
-      toast.success("Role deleted successfully");
-    } catch (error) {
-      console.error("Error deleting role:", error);
-      toast.error("Failed to delete role");
     }
   };
 

@@ -23,6 +23,7 @@ import { fetchWithAuth } from "@/components/utils/fetchwitAuth";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { exchangeRatesApi } from "@/api/exchange-rates";
 
 interface Currency {
   id: string;
@@ -62,12 +63,6 @@ export default function AddExchangeRate() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      toast.error("Authentication token not found");
-      return;
-    }
-
     if (!date) {
       toast.error("Please select an effective date");
       return;
@@ -81,29 +76,13 @@ export default function AddExchangeRate() {
 
     try {
       setIsPending(true);
+      const response = await exchangeRatesApi.createRate(formData);
 
-      const response = await fetchWithAuth(
-        "https://mojoapi.crosslinkglobaltravel.com/api/rates",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(formData),
-        }
-      );
-
-      if (response.ok) {
+      if (response.status === "success") {
         toast.success("Exchange rate added successfully");
         router.push("/admin-dashboard/exchange-rates");
       } else {
-        if (response.status === 403) {
-          toast.error("You do not have permission to perform this action");
-        } else {
-          const errorData = await response.json();
-          toast.error(errorData.message || "Failed to add exchange rate");
-        }
+        toast.error(response.message || "Failed to add exchange rate");
       }
     } catch (error) {
       console.error("Network error:", error);

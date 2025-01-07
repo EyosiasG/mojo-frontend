@@ -1,8 +1,7 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { fetchWithAuth } from "@/components/utils/fetchwitAuth";
 import { toast, ToastContainer } from "react-toastify";
 import BackLink from "@/components/BackLink";
 import { ArrowLeft } from "lucide-react";
@@ -11,11 +10,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Swal from 'sweetalert2';
-import { useRouter } from "next/navigation";
+import { exchangeRatesApi } from "@/api/exchange-rates";
+
+interface ExchangeRate {
+  id: string;
+  name: string;
+  sign: string;
+  rate: string;
+  status: string;
+  created_at: string;
+}
 
 export default function EditExchangeRate() {
   const { rateId } = useParams();
-  const [rate, setRate] = useState(null);
+  const [rate, setRate] = useState<ExchangeRate | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const router = useRouter();
@@ -29,16 +37,18 @@ export default function EditExchangeRate() {
   useEffect(() => {
     const fetchRate = async () => {
       try {
-        const response = await fetchWithAuth(`https://mojoapi.crosslinkglobaltravel.com/api/rates/${rateId}`);
-        if (!response.ok) throw new Error("Failed to fetch rate");
-        const data = await response.json();
-        setRate(data.data);
-        setFormData({
-          currency_id: data.data.currency_id,
-          rate: data.data.rate,
-          effective_date: data.data.effective_date,
-        });
-      } catch (err) {
+        const response = await exchangeRatesApi.getRateById(rateId as string);
+        if (response.status === "success") {
+          setRate(response.data);
+          setFormData({
+            currency_id: response.data.currency_id,
+            rate: response.data.rate,
+            effective_date: response.data.effective_date,
+          });
+        } else {
+          throw new Error("Failed to fetch rate");
+        }
+      } catch (err: any) {
         setError(err.message);
         toast.error(err.message);
       } finally {
@@ -61,30 +71,22 @@ export default function EditExchangeRate() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetchWithAuth(
-        `https://mojoapi.crosslinkglobaltravel.com/api/rates/${rateId}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to update exchange rate");
+      const response = await exchangeRatesApi.updateRate(rateId as string, formData);
+      
+      if (response.status === "success") {
+        Swal.fire({
+          title: 'Success!',
+          text: 'Exchange rate updated successfully!',
+          icon: 'success',
+          timer: 2000,
+          showConfirmButton: false
+        }).then(() => {
+          router.push("/admin-dashboard/exchange-rates");
+        });
+      } else {
+        throw new Error(response.message || "Failed to update exchange rate");
       }
-
-      Swal.fire({
-        title: 'Success!',
-        text: 'Exchange rate updated successfully!',
-        icon: 'success',
-        timer: 2000,
-        showConfirmButton: false
-      }).then(() => {
-        router.push("/admin-dashboard/exchange-rates");
-      });
-    } catch (err) {
+    } catch (err: any) {
       toast.error(err.message);
     } finally {
       setIsSubmitting(false);

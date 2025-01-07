@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import BackLink from "@/components/BackLink";
-import { fetchWithAuth } from "@/components/utils/fetchwitAuth";
+import { exchangeRatesApi } from "@/api/exchange-rates";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -12,7 +12,7 @@ import "react-toastify/dist/ReactToastify.css";
 interface Rate {
   id: string;
   name: string;
-  rate:string;
+  rate: string;
   value: number;
   sign: string;
   created_at: string;
@@ -20,7 +20,7 @@ interface Rate {
 }
 
 export default function ViewRate() {
-  const { rateId } = useParams(); // Use useParams to access route params
+  const { rateId } = useParams();
   const [rate, setRate] = useState<Rate | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -28,17 +28,9 @@ export default function ViewRate() {
   useEffect(() => {
     async function fetchRate() {
       try {
-        const response = await fetchWithAuth(
-          `https://mojoapi.crosslinkglobaltravel.com/api/rates/${rateId}`
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch exchange rate");
-        }
-        const data = await response.json();
-        // console.log(data)
-
-        if (data.status === "success") {
-          setRate(data.data); // Assuming the data is in a "data" object
+        const response = await exchangeRatesApi.getRateById(rateId as string);
+        if (response.status === "success") {
+          setRate(response.data);
         } else {
           setError("Rate not found.");
           toast.error("Rate not found");
@@ -106,7 +98,7 @@ export default function ViewRate() {
                   month: "long",
                   day: "numeric",
                   year: "numeric",
-                }).format(new Date(rate?.created_at))}
+                }).format(new Date(rate?.created_at || ""))}
               </p>
             </div>
 

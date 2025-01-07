@@ -6,29 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { fetchWithAuth } from "@/components/utils/fetchwitAuth";
 import { useRouter } from "next/navigation";
 import BackLink from "@/components/BackLink";
 import { toast } from "react-toastify";
+import { fetchRoleData, updateRole } from "@/api/role-management";
 
 interface Permission {
   id: string;
   name: string;
   enabled: boolean;
-}
-
-interface Role {
-  id: string;
-  name: string;
-  status: string;
-  permissions: Permission[];
 }
 
 export default function Page({ params }: { params: { roleId: string } }) {
@@ -40,17 +26,9 @@ export default function Page({ params }: { params: { roleId: string } }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchRoleData = async () => {
+    const loadRoleData = async () => {
       try {
-        const response = await fetchWithAuth(
-          `https://mojoapi.crosslinkglobaltravel.com/api/roles/${roleId}/edit`
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch role");
-        }
-
-        const data = await response.json();
+        const data = await fetchRoleData(roleId);
         setRoleName(data.role.name);
         setStatus(data.role.status || "active");
 
@@ -70,7 +48,7 @@ export default function Page({ params }: { params: { roleId: string } }) {
       }
     };
 
-    fetchRoleData();
+    loadRoleData();
   }, [roleId]);
 
   const handlePermissionChange = (id: string) => {
@@ -87,28 +65,13 @@ export default function Page({ params }: { params: { roleId: string } }) {
     try {
       const enabledPermissions = permissions
         .filter(p => p.enabled)
-        .map(p => p.id); // Changed from p.id to p.name
+        .map(p => p.id);
 
-      const token = localStorage.getItem("access_token");
-      const response = await fetchWithAuth(
-        `https://mojoapi.crosslinkglobaltravel.com/api/roles/${roleId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            name: roleName,
-            status: status,
-            permission: enabledPermissions,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to update role");
-      }
+      await updateRole(roleId, {
+        name: roleName,
+        status: status,
+        permission: enabledPermissions,
+      });
 
       toast.success("Role updated successfully");
       router.push("/admin-dashboard/role-management");

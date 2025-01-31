@@ -264,7 +264,7 @@ const Page = () => {
   };
 
   return (
-    <>
+    <div className="min-h-screen bg-blue-50">
       <style jsx>{`
         .suggestions-list {
           border: 1px solid #ddd;
@@ -284,7 +284,7 @@ const Page = () => {
           background-color: #f0f0f0;
         }
       `}</style>
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-blue-50">
         {successMessage && (
           <div className="fixed top-0 left-0 right-0 z-50 flex justify-center">
             <div className="bg-green-500 text-white p-4 rounded shadow-md">
@@ -344,7 +344,7 @@ const Page = () => {
                               type="text"
                               value={amount}
                               // onChange={(e) => setAmount(e.target.value)}
-                              className="pl-7"
+                              className="pl-7 bg-gray-100"
                               disabled
                             />
                           </div>
@@ -358,7 +358,7 @@ const Page = () => {
                             type="text"
                             value={`${calculateETB(amount)} ETB`}
                             disabled
-                            className="bg-gray-50"
+                            className="bg-gray-100"
                           />
                         </div>
                       </div>
@@ -371,6 +371,7 @@ const Page = () => {
                             value={senderName}
                             onChange={handleCustomerNameChange}
                             placeholder="Enter sender name"
+                            className="bg-white"
                           />
                           {filteredCustomers.length > 0 && (
                             <ul className="suggestions-list" style={{ maxHeight: '150px', overflowY: 'auto' }}>
@@ -410,6 +411,7 @@ const Page = () => {
                             value={accountNumber}
                             onChange={(e) => setAccountNumber(e.target.value)}
                             placeholder="Enter account number"
+                            className="bg-white"
                           />
                         </div>
                        
@@ -423,6 +425,7 @@ const Page = () => {
                             value={recieverName}
                             onChange={handleRecieverNameChange}
                             placeholder="Enter recipient name"
+                            className="bg-white"
                           />
                           {filteredRecievers.length > 0 && (
                             <ul className="suggestions-list" style={{ maxHeight: '150px', overflowY: 'auto' }}>
@@ -457,7 +460,7 @@ const Page = () => {
           </main>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

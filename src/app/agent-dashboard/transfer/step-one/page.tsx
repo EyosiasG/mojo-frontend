@@ -37,7 +37,7 @@ const Page = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-blue-50">
       <div className=" max-w-5xl mx-30 p-8">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
@@ -90,7 +90,7 @@ const Page = () => {
                           type="text"
                           value={amount}
                           onChange={(e) => setAmount(e.target.value)}
-                          className="pl-7"
+                          className="pl-7 bg-white"
                           placeholder="0.00"
                         />
                       </div>

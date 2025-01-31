@@ -48,8 +48,8 @@ export const usersApi = {
 
   // Get all users
   getAllUsers: async () => {
-    console.log('Making API request to:', `${BASE_URL}/customers`);
-    const response = await fetchWithAuth(`${BASE_URL}/customers`);
+    console.log('Making API request to:', `${BASE_URL}/senders`);
+    const response = await fetchWithAuth(`${BASE_URL}/senders`);
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -60,12 +60,12 @@ export const usersApi = {
     const data = await response.json();
     console.log('Raw API response:', data);
     
-    if (!data.customers) {
+    if (!data.users) {
       console.error('Invalid response format:', data);
       throw new Error('Invalid response format from server');
     }
 
-    const sortedUsers = data.customers.sort((a: User, b: User) => 
+    const sortedUsers = data.users.sort((a: User, b: User) => 
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
     
@@ -74,7 +74,7 @@ export const usersApi = {
   },
 
   getUserData: async (userId: string) => {
-    const response = await fetch(`${BASE_URL}/users/${userId}`, {
+    const response = await fetch(`${BASE_URL}/senders/${userId}`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("access_token")}`,
       },
@@ -105,7 +105,7 @@ export const usersApi = {
 
   // Search users
   searchUsers: async (query: string) => {
-    const response = await fetchWithAuth(`${BASE_URL}/users/search/${query}`);
+    const response = await fetchWithAuth(`${BASE_URL}/senders/search/${query}`);
     
     if (!response.ok) {
       throw new Error(`Error: ${response.statusText}`);
@@ -121,7 +121,7 @@ export const usersApi = {
 
   // Delete user
   deleteUser: async (userId: string | number) => {
-    const response = await fetchWithAuth(`${BASE_URL}/users/${userId}`, {
+    const response = await fetchWithAuth(`${BASE_URL}/senders/${userId}`, {
       method: 'DELETE',
     });
 
@@ -165,7 +165,7 @@ export const usersApi = {
   },
 
   getTotalCustomers: async () => {
-    const response = await fetchWithAuth(`${BASE_URL}/customers`);
+    const response = await fetchWithAuth(`${BASE_URL}/senders`);
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
 

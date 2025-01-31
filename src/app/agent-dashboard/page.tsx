@@ -62,8 +62,8 @@ export default function DashboardPage() {
   }
 
   return (
-    <>
-      <div className="border-b bg-white">
+    <div className="bg-blue-50">
+      <div className="bg-blue-50 p-4">
         <div className="flex flex-col sm:flex-row h-auto sm:h-16 items-center justify-between px-4 sm:px-6 py-4 sm:py-0">
           <h1 className="text-xl font-semibold text-[#2B3674] ml-8 mb-4 sm:mb-0">
             Main Dashboard
@@ -82,7 +82,7 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center px-4 sm:px-12 py-4 bg-gradient-to-r from-gray-50 to-white mt-10 gap-4 sm:gap-0">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center px-4 sm:px-12 py-4 mt-10 gap-4 sm:gap-0">
         <div className="w-full sm:w-auto">
           <div className="flex flex-col bg-white rounded-xl px-4 sm:px-6 py-3 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 w-full sm:w-auto">
             <div className="flex flex-col w-full sm:w-auto">
@@ -148,6 +148,6 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

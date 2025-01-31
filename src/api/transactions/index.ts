@@ -20,7 +20,7 @@ export const transactionsApi = {
 
   // Get all transactions
   getAllTransactions: async () => {
-    const response = await fetchWithAuth(`${BASE_URL}/transactions`);
+    const response = await fetchWithAuth(`${BASE_URL}/transfers`);
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     return response.json();
   },

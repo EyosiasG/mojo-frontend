@@ -11,6 +11,8 @@ import Swal from 'sweetalert2';
 import { Loader2 } from "lucide-react";
 import { usersApi } from "@/api/users"; 
 import { authApi } from "@/api/auth";
+import NotificationProfile from "@/components/NotificationProfile";
+import React from "react";
 
 
 export default function SettingsPage() {
@@ -323,7 +325,7 @@ export default function SettingsPage() {
   };
  
   return (
-    <>
+    <div className="bg-blue-50 min-h-screen">
       <ToastContainer
         position="top-center"
         autoClose={2500}
@@ -335,6 +337,17 @@ export default function SettingsPage() {
         pauseOnHover
         theme="light"
       />
+
+      <header className="flex items-center justify-between py-4 px-10">
+        <h1 className="text-xl font-semibold text-primary">Settings</h1>
+        <div className="flex items-center gap-4">
+          <NotificationProfile
+            profileLink="/agent-dashboard/settings"
+            notificationLink="/agent-dashboard/notifications"
+          />
+
+        </div>
+      </header>
       <div className="container mx-auto py-10 space-y-8 max-w-3xl">
 
         {/* Profile Settings */}
@@ -554,6 +567,6 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
       </div>
-    </>
+    </div>
   );
 }

@@ -81,16 +81,16 @@ const page = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-blue-50 flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-blue-50">
       {/* Header */}
-      <header className="flex items-center justify-between p-4 bg-white border-b">
+      <header className="flex items-center justify-between p-4">
         <h1 className="text-xl font-semibold text-primary">
           Transaction History
         </h1>

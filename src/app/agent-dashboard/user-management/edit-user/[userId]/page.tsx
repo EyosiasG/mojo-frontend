@@ -14,7 +14,11 @@ import { useParams, useRouter } from "next/navigation";
 import Swal from 'sweetalert2';
 import { Loader2 } from "lucide-react";
 import { usersApi } from "@/api/users";
+import NotificationProfile from "@/components/NotificationProfile";
+import React from "react";
+import BackLink from "@/components/BackLink";
 // import jwt_decode from "jwt-decode";
+import { ArrowLeft } from "lucide-react";
 
 export default function SettingsPage() {
   // State management for form data and UI controls
@@ -167,7 +171,7 @@ export default function SettingsPage() {
   };
   
   return (
-    <>
+    <div className="bg-blue-50 min-h-full">
       <ToastContainer
         position="top-center"
         autoClose={2500}
@@ -179,15 +183,22 @@ export default function SettingsPage() {
         pauseOnHover
         theme="light"
       />
-      <div className="container mx-auto py-10 space-y-8 max-w-3xl">
-        <Button
-          variant="outline"
-          onClick={() => router.back()}
-          className="mb-4"
-        >
-          ← Back
-        </Button>
+        <header className="flex items-center justify-between p-4">
+        <h1 className="text-xl font-semibold text-primary">User Management</h1>
+        <div className="flex items-center gap-4">
+          <NotificationProfile
+            profileLink="/agent-dashboard/settings"
+            notificationLink="/agent-dashboard/notifications"
+          />
 
+        </div>
+      </header>
+      <div className="container mx-auto py-10 space-y-8 max-w-3xl">
+          <BackLink>
+            <ArrowLeft className="h-4 w-4" />
+            User Details For - {userData.first_name} {userData.last_name}
+          </BackLink>
+       
         {error && <p className="text-red-500">{error}</p>}
 
         {/* Profile Settings */}
@@ -341,6 +352,6 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
       </div>
-    </>
+    </div>
   );
 }
